@@ -22,10 +22,7 @@ impl From<&str> for Password {
 impl Password {
     fn is_within_range(&self) -> bool {
         let count = self.password.chars().filter(|c| c == &self.policy).count();
-        if count >= self.min && count <= self.max {
-            return true;
-        }
-        false
+        count >= self.min && count <= self.max
     }
 
     fn only_one(&self) -> bool {
