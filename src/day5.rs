@@ -12,6 +12,7 @@ pub fn input_generator(input: &str) -> Vec<(String, String)> {
 }
 
 #[aoc_generator(day5, part1, bit_operation)]
+#[aoc_generator(day5, part2, bit_operation)]
 pub fn input_generator_lines(input: &str) -> Vec<String> {
     input.lines().map(|x| x.to_string()).collect()
 }
@@ -31,6 +32,17 @@ fn generate_seats(input: &[(String, String)]) -> Vec<(u32, u32)> {
             )
         })
         .collect()
+}
+
+fn calculate_seat_id(data: &str) -> u32 {
+    let mut id = 0u32;
+    for (i, v) in data.chars().enumerate() {
+        if v == 'B' || v == 'R' {
+            id |= 1 << (9 - i)
+        }
+    }
+
+    id
 }
 
 #[aoc(day5, part1)]
@@ -56,20 +68,7 @@ pub fn part1_replace_bits(input: &[(String, String)]) -> u32 {
 
 #[aoc(day5, part1, bit_operation)]
 pub fn part1_bit_operation(input: &[String]) -> u32 {
-    input
-        .iter()
-        .map(|data| {
-            let mut id = 0u32;
-            for (i, v) in data.chars().enumerate() {
-                if v == 'B' || v == 'R' {
-                    id |= 1 << (9 - i)
-                }
-            }
-
-            id
-        })
-        .max()
-        .unwrap()
+    input.iter().map(|x| calculate_seat_id(x)).max().unwrap()
 }
 
 #[aoc(day5, part2)]
@@ -98,6 +97,32 @@ pub fn part2(input: &[(String, String)]) -> u32 {
     // be sure that the calculation ends up correct, even if we have the first
     // seat (0)
     my_seat.0 * 8 + (28 - my_seat.1.iter().sum::<u32>())
+}
+
+#[aoc(day5, part2, bit_operation)]
+pub fn part2_bit_operation(input: &[String]) -> u32 {
+    let mut seat_ids: Vec<u32> = input.iter().map(|x| calculate_seat_id(x)).collect();
+    seat_ids.sort_unstable();
+    let min = 0;
+    let max = (seat_ids.last().unwrap() >> 3) - 1;
+
+    seat_ids
+        .iter()
+        .filter(|id| (**id >> 3) > min && (**id >> 3) < max)
+        .scan(0u32, |st, id| {
+            if *st == 0 {
+                *st = *id;
+                return Some(id + 1);
+            }
+            // We've found the gap, end the scan
+            if id - *st > 1 {
+                return None;
+            }
+            *st = *id;
+            Some(id + 1)
+        })
+        .last()
+        .unwrap()
 }
 
 pub fn bsp(section: char, range: (u32, u32)) -> (u32, u32) {
