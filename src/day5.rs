@@ -11,6 +11,11 @@ pub fn input_generator(input: &str) -> Vec<(String, String)> {
         .collect()
 }
 
+#[aoc_generator(day5, part1, bit_operation)]
+pub fn input_generator_lines(input: &str) -> Vec<String> {
+    input.lines().map(|x| x.to_string()).collect()
+}
+
 fn scanner(range: &mut (u32, u32), ch: char) -> Option<(u32, u32)> {
     *range = bsp(ch, *range);
     Some(*range)
@@ -33,6 +38,36 @@ pub fn part1(input: &[(String, String)]) -> u32 {
     generate_seats(input)
         .iter()
         .map(|(row, col)| row * 8 + col)
+        .max()
+        .unwrap()
+}
+
+#[aoc(day5, part1, replace_bits)]
+pub fn part1_replace_bits(input: &[(String, String)]) -> u32 {
+    input
+        .iter()
+        .map(|(row, col)| {
+            u32::from_str_radix(&row.replace("F", "0").replace("B", "1"), 2).unwrap() * 8
+                + u32::from_str_radix(&col.replace("L", "0").replace("R", "1"), 2).unwrap()
+        })
+        .max()
+        .unwrap()
+}
+
+#[aoc(day5, part1, bit_operation)]
+pub fn part1_bit_operation(input: &[String]) -> u32 {
+    input
+        .iter()
+        .map(|data| {
+            let mut id = 0u32;
+            for (i, v) in data.chars().enumerate() {
+                if v == 'B' || v == 'R' {
+                    id |= 1 << (9 - i)
+                }
+            }
+
+            id
+        })
         .max()
         .unwrap()
 }
@@ -79,7 +114,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn simple_row() {
+    fn test_scanner() {
         let input = "FBFBBFF";
         let mut r = input.chars().scan((0, 127), scanner);
         assert_eq!(r.next(), Some((0, 63)));
@@ -90,6 +125,10 @@ mod tests {
         assert_eq!(r.next(), Some((44, 45)));
         assert_eq!(r.next(), Some((44, 44)));
 
+        let input = "BFFFBBF";
+        let r = input.chars().scan((0, 127), scanner).last();
+        assert_eq!(r, Some((70, 70)));
+
         let input = "FFFBBBF";
         let r = input.chars().scan((0, 127), scanner).last();
         assert_eq!(r, Some((14, 14)));
@@ -97,5 +136,36 @@ mod tests {
         let input = "BBFFBBF";
         let r = input.chars().scan((0, 127), scanner).last();
         assert_eq!(r, Some((102, 102)));
+    }
+
+    #[test]
+    fn test_bits_part1() {
+        let row = "FBFBBFF".to_string();
+        let col = "RLR".to_string();
+        let mut full = row.clone();
+        full.push_str(&col);
+        assert_eq!(part1_replace_bits(&vec![(row, col)]), 357);
+        assert_eq!(part1_bit_operation(&vec![full]), 357);
+
+        let row = "BFFFBBF".to_string();
+        let col = "RRR".to_string();
+        let mut full = row.clone();
+        full.push_str(&col);
+        assert_eq!(part1_replace_bits(&vec![(row, col)]), 567);
+        assert_eq!(part1_bit_operation(&vec![full]), 567);
+
+        let row = "FFFBBBF".to_string();
+        let col = "RRR".to_string();
+        let mut full = row.clone();
+        full.push_str(&col);
+        assert_eq!(part1_replace_bits(&vec![(row, col)]), 119);
+        assert_eq!(part1_bit_operation(&vec![full]), 119);
+
+        let row = "BBFFBBF".to_string();
+        let col = "RLL".to_string();
+        let mut full = row.clone();
+        full.push_str(&col);
+        assert_eq!(part1_replace_bits(&vec![(row, col)]), 820);
+        assert_eq!(part1_bit_operation(&vec![full]), 820);
     }
 }
