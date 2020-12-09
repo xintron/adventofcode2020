@@ -114,7 +114,7 @@ jmp -4
 acc +6";
 
     #[test]
-    pub fn test_parse_input() {
+    pub fn test_day8_parse_input() {
         let instructions = input_generator(SAMPLE_INPUT_P1);
         assert_eq!(
             instructions[0],
@@ -140,13 +140,13 @@ acc +6";
     }
 
     #[test]
-    pub fn test_part1_accumulator() {
+    pub fn test_day8_part1_accumulator() {
         let instructions = input_generator(SAMPLE_INPUT_P1);
         assert_eq!(part1_accumulator(&instructions), 5);
     }
 
     #[test]
-    pub fn test_part2_operation_fix() {
+    pub fn test_day8_part2_operation_fix() {
         let instructions = input_generator(SAMPLE_INPUT_P1);
         assert_eq!(part2_operation_fix(&instructions), 8);
     }
