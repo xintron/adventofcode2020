@@ -65,7 +65,7 @@ fn accumulator(instructions: &Vec<Instruction>) -> (bool, isize) {
         // value.
         // This needs to happen after the instruction has been executed above to
         // correctly accumulate the last instruction.
-        if (i + 1) as usize >= instructions.len() {
+        if (i) as usize >= instructions.len() {
             return (false, acc);
         }
     }
