@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[aoc_generator(day15)]
 pub fn input_generator(input: &str) -> Vec<usize> {
     input.split(',').map(|x| x.parse().unwrap()).collect()
@@ -16,21 +14,20 @@ pub fn part2(data: &Vec<usize>) -> usize {
 }
 
 fn get_spoken(data: &Vec<usize>, number: usize) -> usize {
-    let mut spoken: HashMap<usize, usize> = HashMap::default();
-    spoken.extend(data.iter().enumerate().map(|(i, v)| (*v, i + 1)));
+    let mut spoken: Vec<usize> = Vec::with_capacity(number);
+    // Initialize everything with 0
+    spoken.resize(number, 0);
+    for (i, v) in data.iter().enumerate() {
+        spoken[*v] = i + 1 as usize;
+    }
+
     (data.len()..number).fold(*data.last().unwrap(), |last, index| {
-        let mut current = last;
-        spoken
-            .entry(current)
-            .and_modify(|prev_spoken| {
-                let next_number = index - *prev_spoken;
-                current = next_number;
-                *prev_spoken = index;
-            })
-            .or_insert_with(|| {
-                current = 0;
-                index
-            });
+        let prev = spoken[last];
+        let current = match prev {
+            0 => 0,
+            _ => index - prev,
+        };
+        spoken[last] = index;
         current
     })
 }
